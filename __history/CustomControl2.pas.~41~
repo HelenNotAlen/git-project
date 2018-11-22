@@ -1,0 +1,223 @@
+unit CustomControl2;
+
+interface
+
+uses
+ Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs ;
+
+ type
+  TShape = (fElipse, fRectangle, fStar, fTriangle, fEvrite, fRhombus);
+  MyShape = class(TCustomControl)
+  private
+    fshape:Tshape;
+    fborder:Tcolor;
+    ffill:Tcolor;
+    fgettext:TCaption;
+    fspsext:TCaption;
+     ////
+    Ffont:TFont;
+    Fstyle: TFontStyles;
+    Fname:TFontName;
+    FcolorText:TColor;
+
+    procedure SetShape(const Value: TShape);
+    procedure SetBorder(const Value: Tcolor);
+    procedure SetFill(const Value: TColor);
+    procedure SetFont(const Value:TFont);
+
+
+  ////
+    procedure SpshlText(const Value:TFont);
+
+
+  protected
+    procedure paint;override;
+  public
+    constructor Create(owner: Tcomponent);override;
+  published
+    property Shape:Tshape read fshape write SetShape;
+    property Colorborder : Tcolor read fborder write SetBorder;
+    property FillColor:Tcolor read ffill write SetFill;
+    ///
+    property Capshon:TCaption read fspsext write SpshlText;
+
+
+    property Font:Tfont read ffont write SetFont;
+
+  end;
+
+procedure Register;
+
+implementation
+
+procedure Register;
+begin
+  RegisterComponents('MyShape', [MyShape]);
+end;
+
+
+
+  constructor MyShape.Create(owner: TComponent);
+  begin
+  inherited;
+  fshape := fElipse;
+  ffill := clRed;
+  fborder := clBlue;
+  end;
+
+  procedure MyShape.paint;
+  var
+  rec:Trect;
+  Star:array[0..4] of TPoint;
+  Triangle:array[0..2] of TPoint;
+  Evrite: array [0..2] of TPoint;
+  Evrite1: array [0..2] of TPoint;
+  Rhombus:array [0..3] of TPoint;
+   i:integer;
+  begin
+    inherited;
+
+    Canvas.Pen.Color:=fborder;
+    Canvas.Brush.Color := ffill;
+
+    if fshape = FElipse then
+    begin
+      rec:= ClientRect;
+      Canvas.Ellipse(ClientRect);
+    end;
+
+    if fshape = fstar then
+    begin
+      for I := 0 to 4 do
+        begin
+          star[i].X:= Round ((Width div 2) - (Width div 2)*Sin(0.8 *i*Pi));
+          star[i].Y:= Round ((Height div 2) - (Height div 2)*Cos(0.8 *i*Pi));
+        end;
+       SetPolyFillMode(Canvas.Handle,Winding);
+       Canvas.Polygon(Star);
+    end;
+
+
+    if fshape = fTriangle then
+      begin
+          Triangle[0].x:=Round((Width div 2) - (Width div 2));
+          Triangle[0].y:=Round((Height div 2) + (Height div 2))-10;
+          Triangle[1].X:=Round((Width div 2));
+          Triangle[1].y:=0;
+          Triangle[2].x:=Round((Width div 2) + (Width div 2));
+          Triangle[2].y:=Round((Height div 2) + (Height div 2))-10;
+
+           SetPolyFillMode(Canvas.Handle,Winding);
+           Canvas.Polygon(Triangle);
+      end;
+
+      if fshape = fRectangle then
+        begin
+      rec:= ClientRect;
+      Canvas.Rectangle(ClientRect);
+    end;
+
+
+    if fshape = fRhombus then
+    begin
+      Rhombus[0].X:=Round(0);
+      Rhombus[0].Y:=Round((Height div 2));
+      Rhombus[1].X:=Round((Width div 2));
+      Rhombus[1].Y:=Round(Height);
+
+      Rhombus[2].x:=Round(Width);
+      Rhombus[2].y:=Round(Height div 2);
+      Rhombus[3].x:=Round(Width div 2);
+      Rhombus[3].Y:=Round(0);
+
+        SetPolyFillMode(Canvas.Handle,Winding);
+           Canvas.Polygon(Rhombus);
+    end;
+
+
+    if fshape = fEvrite then
+    begin
+          Evrite[0].x:=Round(0);
+          Evrite[0].y:=Round(Height) -(Height div 5);
+          Evrite[1].X:=Round((Width));
+          Evrite[1].y:=Round((Height) -(Height div 5));
+          Evrite[2].x:=Round(Width div 2);
+          Evrite[2].y:=Round(0);
+
+
+
+
+           SetPolyFillMode(Canvas.Handle,Winding);
+           Canvas.Polygon(Evrite);
+
+          Evrite1[0].x:=Round(0);
+          Evrite1[0].y:=Round(Height div 5);
+          Evrite1[1].X:=Round(Width);
+          Evrite1[1].y:=Round(Height div 5);
+          Evrite1[2].x:=Round(Width div 2);
+          Evrite1[2].y:=Round(Height);;
+
+
+           SetPolyFillMode(Canvas.Handle,Winding);
+           Canvas.Polygon(Evrite1);
+
+
+
+    end;
+
+
+
+
+     canvas.TextOut(Round (Width div 2),Round (Height div 2),fspsext);
+     GrayString(Canvas.Handle,Canvas.Brush.Handle,nil,Integer(PChar('TeXt')),0,20,350,0,0);
+
+  end;
+
+  procedure  MyShape.SetBorder(const Value: TColor);
+  begin
+  fborder := Value;
+  Refresh;
+  paint;
+  end;
+
+  procedure MyShape.SetFill(const Value: TColor);
+  begin
+  ffill := Value;
+  Refresh;
+  paint;
+  end;
+
+  procedure MyShape.SetShape(const Value: TShape);
+  begin
+  fshape :=Value;
+  Refresh;
+  paint;
+  end;
+
+  procedure MyShape.SetFont(const Value: TFont);
+  begin
+  ffont:=value;
+  refresh;
+  paint;
+  end;
+
+
+
+  procedure MyShape.SpshlText(const Value: TFont);
+  begin
+
+    Canvas.Brush.Color:= FColorText;
+    Canvas.Font.Name:= Fname;
+    Canvas.Font.Style:=Fstyle;
+    Canvas.Font.Height:=69;
+   // value:=GrayString(Canvas.Handle,Canvas.Brush.Handle,nil,Integer(PChar(Value)),0,20,350,0,0);
+    fspsext:=Value;
+    Refresh;
+  end;
+
+
+
+
+end.
+
